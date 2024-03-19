@@ -2,7 +2,9 @@
 import React, { useState } from 'react';
 import Quiz from './Components/Quiz';
 import './App.css';
+
 import { Button } from '@mui/material';
+
 const App: React.FC = () => {
   const [quizStarted, setQuizStarted] = useState(false);
 
@@ -14,8 +16,14 @@ const App: React.FC = () => {
     <div id='root'>
       {!quizStarted ? (
         <div>
-          <h1>Quiz App</h1>
-          <Button variant="contained"  color="secondary"  onClick={startQuiz}>Start Quiz</Button>
+          
+            <img src="/aa.png" alt="Quizy" className="responsive-image"/>
+            
+
+           <h4>Welcome to the Quiz app, where learning meets excitement! <br/> Get ready to challenge your intellect and have fun along the way.</h4>
+           
+              <Button variant="contained" color="secondary" onClick={startQuiz}>Start Quiz</Button>
+            
         </div>
       ) : (
         <Quiz />
