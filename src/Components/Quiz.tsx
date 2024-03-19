@@ -93,7 +93,7 @@ const Quiz: React.FC = () => {
             {!selectedCategory ? (
               <div>
                 <br /><h3 className={styles.customTypographySelect}>Select Category:</h3>
-                <Select value={selectedCategory || ''} onChange={handleCategoryChange} style={{ width: '100%' }}
+                <Select value={selectedCategory || ''}  onChange={handleCategoryChange} style={{ width: '100%',background:'white' }}
                   MenuProps={{ PaperProps: { style: { zIndex: 10 } } }}>
                   <MenuItem value="9">General Knowledge</MenuItem>
                   <MenuItem value="19">Mathematics</MenuItem>
