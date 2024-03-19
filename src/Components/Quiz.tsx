@@ -7,6 +7,15 @@ import { AccessTime } from '@mui/icons-material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import styles from './Quiz.module.css'; 
 
+
+const categoryNames: { [key: string]: string } = {
+  "9": "General Knowledge",
+  "19": "Mathematics",
+  "18": "Computer",
+  "21": "Sports",
+  "17": "Science & Nature",
+  // Add more categories as needed
+};
 const fetchQuestions = async (category: string) => {
   const api= import.meta.env.VITE_REACT_APP_API_URL
   const response = await axios.get(`${api}&category=${category}`);
@@ -83,6 +92,7 @@ const Quiz: React.FC = () => {
   };
 
   const restartQuiz = () => {
+    setSelectedCategory(null); // Reset selected category
     startQuiz();
     refetch(); // Refetch questions
   };
@@ -97,15 +107,21 @@ const Quiz: React.FC = () => {
             {!selectedCategory ? (
               <div>
                 <br /><h3 className={styles.customTypographySelect}>Select Category:</h3>
-                <Select value={selectedCategory || ''}  onChange={handleCategoryChange} style={{ width: '100%',background:'white' }}
-                  MenuProps={{ PaperProps: { style: { zIndex: 10 } } }}>
-                  <MenuItem value="9">General Knowledge</MenuItem>
-                  <MenuItem value="19">Mathematics</MenuItem>
-                  <MenuItem value="18">Computer</MenuItem>
-                  <MenuItem value="21">Sports</MenuItem>
-                  <MenuItem value="17">Science & Nature</MenuItem>
-                  {/* Add more categories as needed */}
-                </Select>
+                <Select value={selectedCategory || ''}  
+                        onChange={handleCategoryChange} 
+                        style={{ width: '100%', background: 'white', color: selectedCategory ? 'inherit' : '#aaa' }}
+                    MenuProps={{ PaperProps: { style: { zIndex: 10 } } }}
+                                 displayEmpty
+                                 inputProps={{ 'aria-label': 'Select category' }}
+                >
+               <MenuItem value="" disabled>Select a category</MenuItem>
+               <MenuItem value="9">General Knowledge</MenuItem>
+               <MenuItem value="19">Mathematics</MenuItem>
+               <MenuItem value="18">Computer</MenuItem>
+               <MenuItem value="21">Sports</MenuItem>
+               <MenuItem value="17">Science & Nature</MenuItem>
+               </Select>
+
               </div>
             ) : isError ? (
               <Typography>Error fetching questions</Typography>
@@ -142,7 +158,7 @@ const Quiz: React.FC = () => {
                   </div>
                 ) : (
                   <div>
-                    <h2 className={styles.customMargin }>Quiz Completed</h2><hr/>
+                    <h2 className={styles.customMargin }>Congratulations on completing the {categoryNames[selectedCategory]} quiz!</h2><hr/>
                  <h4 className={styles.showScore}>Your Score: {score}/{questions.length}</h4>
                  <h4 className={styles.showScore}>Correct Answer: {score}/{questions.length}</h4>
                  <h4 className={styles.showScore}>Incorrect Answer: {incorrectscore}/{questions.length}</h4><hr/><br/>
