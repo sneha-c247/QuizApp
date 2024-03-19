@@ -17,6 +17,7 @@ const Quiz: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
+  const [incorrectscore, incorrectsetScore] = useState(0);
   const [timer, setTimer] = useState(10);
   const [quizCompleted, setQuizCompleted] = useState(false);
 
@@ -50,6 +51,7 @@ const Quiz: React.FC = () => {
 
   const startQuiz = () => {
     setScore(0);
+    incorrectsetScore(0);
     setCurrentQuestion(0);
     setQuizCompleted(false);
     setTimer(10);
@@ -63,7 +65,9 @@ const Quiz: React.FC = () => {
     if (answer === questions[currentQuestion]?.correct_answer) {
       setScore(score + 1);
     }
-
+    else {
+      incorrectsetScore(incorrectscore + 1);
+    }
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
@@ -139,7 +143,11 @@ const Quiz: React.FC = () => {
                 ) : (
                   <div>
                     <h2 className={styles.customMargin }>Quiz Completed</h2><hr/>
-                 <h4 className={styles.showScore}>Your Score: {score}/{questions.length}</h4><hr/><br/>
+                 <h4 className={styles.showScore}>Your Score: {score}/{questions.length}</h4>
+                 <h4 className={styles.showScore}>Correct Answer: {score}/{questions.length}</h4>
+                 <h4 className={styles.showScore}>Incorrect Answer: {incorrectscore}/{questions.length}</h4><hr/><br/>
+               
+               
                <Button variant="contained" color="inherit" onClick={() => restartQuiz()} >
                 Restart Quiz
                 </Button>
