@@ -1,12 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useQuery, useQueryClient } from 'react-query'; // Import useQueryClient from react-query
+import { useQuery, useQueryClient } from 'react-query';
 import { Button, CircularProgress, Typography, Select, MenuItem, Card, CardContent } from '@mui/material';
 import { AccessTime } from '@mui/icons-material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import styles from './Quiz.module.css'; 
-
 
 const categoryNames: { [key: string]: string } = {
   "9": "General Knowledge",
@@ -16,8 +14,9 @@ const categoryNames: { [key: string]: string } = {
   "17": "Science & Nature",
   // Add more categories as needed
 };
+
 const fetchQuestions = async (category: string) => {
-  const api= import.meta.env.VITE_REACT_APP_API_URL
+  const api = import.meta.env.VITE_REACT_APP_API_URL;
   const response = await axios.get(`${api}&category=${category}`);
   return response.data.results;
 };
@@ -30,7 +29,7 @@ const Quiz: React.FC = () => {
   const [timer, setTimer] = useState(10);
   const [quizCompleted, setQuizCompleted] = useState(false);
 
-  const queryClient = useQueryClient(); // Move useQueryClient hook inside the component
+  const queryClient = useQueryClient();
 
   const { data: questions = [], isError, isLoading, refetch } = useQuery(['questions', selectedCategory], () =>
     fetchQuestions(selectedCategory || ''),
@@ -43,20 +42,18 @@ const Quiz: React.FC = () => {
     const intervalId = setInterval(() => {
       setTimer((prevTimer) => (prevTimer > 0 ? prevTimer - 1 : 0));
     }, 1000);
-    if (timer === 0) {
+    if (timer === 0 && !quizCompleted) {
       handleAnswer('');
     }
 
     return () => clearInterval(intervalId);
-
-  }, [timer]);
+  }, [timer, quizCompleted]);
 
   useEffect(() => {
     if (selectedCategory !== null && currentQuestion === 0) {
       startQuiz();
     }
   }, [currentQuestion, selectedCategory]);
-
 
   const startQuiz = () => {
     setScore(0);
@@ -66,35 +63,57 @@ const Quiz: React.FC = () => {
     setTimer(10);
   };
 
+  
+  const handleSkip = () => {
+    if (currentQuestion < questions.length - 1 && !quizCompleted) {
+      setCurrentQuestion(currentQuestion + 1);
+      setTimer(10); // Reset the timer when skipping a question
+      incorrectsetScore(incorrectscore + 1); // Increment incorrect score
+    } else if (currentQuestion === 9) {
+      setQuizCompleted(true);
+    }
+  
+    if (questions[currentQuestion]?.correct_answer === '') {
+      setScore(score + 1); // Increment score if the correct answer is skipped
+    }else{
+      incorrectsetScore(incorrectscore + 1);
+    }
+  };
+  
+  
   const handleAnswer = (answer: string) => {
     if (currentQuestion >= questions.length || quizCompleted) {
       return;
     }
-
+  
     if (answer === questions[currentQuestion]?.correct_answer) {
       setScore(score + 1);
-    }
-    else {
+    } else if (answer === '') { // Check if the answer is empty (indicating a skip)
+      handleSkip();
+      return;
+    } else {
       incorrectsetScore(incorrectscore + 1);
     }
+  
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       setQuizCompleted(true);
     }
-
+  
     setTimer(10);
   };
+  
 
   const handleCategoryChange = (event: SelectChangeEvent<string>) => {
     setSelectedCategory(event.target.value);
-    queryClient.invalidateQueries(['questions', event.target.value]); // Invalidate the query when category changes
+    queryClient.invalidateQueries(['questions', event.target.value]);
   };
 
   const restartQuiz = () => {
-    setSelectedCategory(null); // Reset selected category
+    setSelectedCategory(null);
     startQuiz();
-    refetch(); // Refetch questions
+    refetch();
   };
 
   return (
@@ -107,21 +126,21 @@ const Quiz: React.FC = () => {
             {!selectedCategory ? (
               <div>
                 <br /><h3 className={styles.customTypographySelect}>Select Category:</h3>
-                <Select value={selectedCategory || ''}  
-                        onChange={handleCategoryChange} 
-                        style={{ width: '100%', background: 'white', color: selectedCategory ? 'inherit' : '#aaa' }}
-                    MenuProps={{ PaperProps: { style: { zIndex: 10 } } }}
-                                 displayEmpty
-                                 inputProps={{ 'aria-label': 'Select category' }}
+                <Select
+                  value={selectedCategory || ''}
+                  onChange={handleCategoryChange}
+                  style={{ width: '100%', background: 'white', color: selectedCategory ? 'inherit' : '#aaa' }}
+                  MenuProps={{ PaperProps: { style: { zIndex: 10 } } }}
+                  displayEmpty
+                  inputProps={{ 'aria-label': 'Select category' }}
                 >
-               <MenuItem value="" disabled>Select a category</MenuItem>
-               <MenuItem value="9">General Knowledge</MenuItem>
-               <MenuItem value="19">Mathematics</MenuItem>
-               <MenuItem value="18">Computer</MenuItem>
-               <MenuItem value="21">Sports</MenuItem>
-               <MenuItem value="17">Science & Nature</MenuItem>
-               </Select>
-
+                  <MenuItem value="" disabled>Select a category</MenuItem>
+                  <MenuItem value="9">General Knowledge</MenuItem>
+                  <MenuItem value="19">Mathematics</MenuItem>
+                  <MenuItem value="18">Computer</MenuItem>
+                  <MenuItem value="21">Sports</MenuItem>
+                  <MenuItem value="17">Science & Nature</MenuItem>
+                </Select>
               </div>
             ) : isError ? (
               <Typography>Error fetching questions</Typography>
@@ -130,7 +149,7 @@ const Quiz: React.FC = () => {
                 {!quizCompleted ? (
                   <div>
                     <div className={styles.flexContainer}>
-                    <AccessTime className={styles.autoMargin} />{/* Clock Icon with Animation */}
+                      <AccessTime className={styles.autoMargin} />
                       <p className={styles.timerText}> {timer} sec</p>
                     </div><br />
                     
@@ -154,20 +173,21 @@ const Quiz: React.FC = () => {
                       >
                         {questions[currentQuestion]?.correct_answer}
                       </button>
-                    </div>
+                    </div><br/>
+
+                    {/* Skip button */}
+                   < button onClick={handleSkip} className={styles.button3}>Skip</button>
                   </div>
                 ) : (
                   <div>
-                    <h2 className={styles.customMargin }>Congratulations on completing the {categoryNames[selectedCategory]} quiz!</h2><hr/>
-                 <h4 className={styles.showScore}>Your Score: {score}/{questions.length}</h4>
-                 <h4 className={styles.showScore}>Correct Answer: {score}/{questions.length}</h4>
-                 <h4 className={styles.showScore}>Incorrect Answer: {incorrectscore}/{questions.length}</h4><hr/><br/>
-               
-               
-               <Button variant="contained" color="inherit" onClick={() => restartQuiz()} >
-                Restart Quiz
-                </Button>
-             </div>
+                    <h2 className={styles.customMargin }>Congratulations on completing the {categoryNames[selectedCategory]} quiz!</h2><br/><hr/>
+                    <h4 className={styles.showScore}>Your Score: {score}/{questions.length}</h4>
+                    <h4 className={styles.showScore}>Correct Answer: {score}/{questions.length}</h4>
+                    <h4 className={styles.showScore}>Incorrect Answer: {incorrectscore}/{questions.length}</h4><hr/><br/>
+                    <Button variant="contained" color="inherit" onClick={restartQuiz}>
+                      Restart Quiz
+                    </Button>
+                  </div>
                 )}
               </div>
             )}

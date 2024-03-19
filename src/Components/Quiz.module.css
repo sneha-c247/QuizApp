@@ -142,3 +142,23 @@
     transform: scale(1);
   }
 }
+
+
+.button3 {
+  margin-top: 20px;
+  margin: 8px;
+  padding: 10px;
+  padding: 10px 20px;
+  color: white;
+  background-color: #1976d2;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 20px;
+  min-width: 100px;
+  max-width: 200px;
+}
+.button3:hover {
+  background-color: #1565c0; /* Darker shade for hover */
+}
